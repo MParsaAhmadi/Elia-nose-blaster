@@ -132,10 +132,10 @@
   <div id="startScreen" class="overlay active">
     <div class="overlay-card">
       <div class="emoji-big">👃🚀</div>
-      <h1>Nostril Blaster</h1>
-      <p>Pilot your ship and blast bullets straight into the nostrils! You have 20 seconds. How many can you land?</p>
-      <button class="btn" id="startBtn">Launch!</button>
-      <div class="controls-hint">Space / Click / Tap to shoot</div>
+      <h1>ایلیا دماغ گنده</h1>
+      <p>کیر کوچولتو بکن تو دماغ ایلیا</p>
+      <button class="btn" id="startBtn">شروع!</button>
+      <div class="controls-hint">بابایی کیمیا</div>
     </div>
   </div>
 
@@ -147,7 +147,7 @@
       <div class="score-label">Final Score</div>
       <div class="score-display" id="finalScore">0</div>
       <p id="endMessage">Nice shooting!</p>
-      <button class="btn" id="restartBtn">Play Again</button>
+      <button class="btn" id="restartBtn">دوباره</button>
     </div>
   </div>
 </div>
@@ -164,8 +164,8 @@ const IMG_CONFIG = {
   width: 1080,
   height: 1920,
   targets: [
-    { xMin: 470, xMax: 525, yMin: 910, yMax: 930 }, // Left Nostril
-    { xMin: 560, xMax: 625, yMin: 910, yMax: 930 }  // Right Nostril
+    { xMin: 470, xMax: 525, yMin: 910, yMax: 925 }, // Left Nostril
+    { xMin: 560, xMax: 625, yMin: 910, yMax: 925 }  // Right Nostril
   ]
 };
 
@@ -806,11 +806,11 @@ function endGame() {
   gameState = 'ended';
   finalScoreEl.textContent = score;
 
-  if (score === 0) endMessageEl.textContent = "Maybe aim for the nose next time! 😅";
-  else if (score < 10) endMessageEl.textContent = "Getting warmer! Keep practicing! 🎯";
-  else if (score < 25) endMessageEl.textContent = "Nice aim! Solid shooting! 🔥";
-  else if (score < 40) endMessageEl.textContent = "Wow, nostril sniper! 🏆";
-  else endMessageEl.textContent = "LEGENDARY! Absolute nostril destroyer! 💀🚀";
+  if (score < 15) endMessageEl.textContent = "ریدی که. لولت: کصلیس نگین";
+  else if (score < 20) endMessageEl.textContent = "بد نبود. لولت: خایمال پریسا";
+  else if (score < 30) endMessageEl.textContent = "خوبه آفرین. لولت: بابایی کیمیا";
+  else if (score < 40) endMessageEl.textContent = "گاییدی ایلیارو. لولت: پریا پاپیلونی 🏆";
+  else endMessageEl.textContent = "کصخار ایلیا 💀🚀";
 
   setTimeout(() => { endScreen.classList.add('active'); }, 300);
   try { bgMusic.pause(); } catch(e) {}
