@@ -806,11 +806,11 @@ function endGame() {
   gameState = 'ended';
   finalScoreEl.textContent = score;
 
-  if (score < 14) endMessageEl.textContent = "ریدی که. لولت: کصلیس نگین";
-  else if (score < 20) endMessageEl.textContent = "بد نبود. لولت: خایمال پریسا";
-  else if (score < 27) endMessageEl.textContent = "خوبه آفرین. لولت: بابایی کیمیا";
-  else if (score < 34) endMessageEl.textContent = "گاییدی ایلیارو. لولت: پریا پاپیلونی 🏆";
-  else endMessageEl.textContent = "کصخار ایلیا 💀🚀";
+  if (score < 17) endMessageEl.textContent = "ریدی که. لول 1: کصلیس نگین";
+  else if (score < 24) endMessageEl.textContent = "بد نبود. لول 2: خایمال پریسا";
+  else if (score < 29) endMessageEl.textContent = "خوبه آفرین. لول 3: بابایی کیمیا";
+  else if (score < 33) endMessageEl.textContent = "گاییدی ایلیارو. لول 4: پریا پاپیلونی 🏆";
+  else endMessageEl.textContent = "برترین لول (5): لجندری. بکن حرفه ای کیمیا 💀🚀";
 
   setTimeout(() => { endScreen.classList.add('active'); }, 300);
   try { bgMusic.pause(); } catch(e) {}
