@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Nostril Blaster</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  #gameWrapper {
+    position: relative;
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  canvas {
+    display: block;
+    image-rendering: -webkit-optimize-contrast;
+  }
+
+  /* --- Overlays --- */
+  .overlay {
+    position: absolute;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .overlay.active { opacity: 1; pointer-events: auto; }
+  .overlay-card {
+    background: rgba(10, 10, 25, 0.92);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 40px 36px;
+    text-align: center;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 0 60px rgba(100, 60, 255, 0.25), inset 0 1px 0 rgba(255,255,255,0.08);
+    max-width: 340px;
+    width: 85%;
+  }
+  .overlay-card h1 {
+    font-size: 2rem; font-weight: 800;
+    background: linear-gradient(135deg, #ff6bcb, #6b8aff, #00e4ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .overlay-card p {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  .overlay-card .score-display {
+    font-size: 3.5rem; font-weight: 900;
+    color: #fff;
+    margin: 10px 0;
+    text-shadow: 0 0 30px rgba(107,138,255,0.5);
+  }
+  .overlay-card .score-label {
+    color: rgba(255,255,255,0.4);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+  }
+  .btn {
+    display: inline-block;
+    padding: 14px 40px;
+    border: none; border-radius: 50px;
+    background: linear-gradient(135deg, #6b8aff, #ff6bcb);
+    color: #fff;
+    font-size: 1rem; font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 25px rgba(107,138,255,0.4);
+  }
+  .btn:hover { transform: scale(1.05); box-shadow: 0 6px 35px rgba(107,138,255,0.6); }
+  .btn:active { transform: scale(0.97); }
+  .emoji-big { font-size: 4rem; margin-bottom: 8px; }
+  .controls-hint {
+    color: rgba(255,255,255,0.35);
+    font-size: 0.7rem;
+    margin-top: 16px;
+    letter-spacing: 0.5px;
+  }
+  #gameTitle {
+    position: absolute;
+    z-index: 5;
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-align: center;
+    direction: rtl;
+    font-family: 'Segoe UI', Tahoma, 'Arial', sans-serif;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.85), 0 0 20px rgba(107,138,255,0.5), 0 0 40px rgba(255,107,203,0.3);
+    pointer-events: none;
+    letter-spacing: 1px;
+    line-height: 1.4;
+    padding: 8px 16px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%);
+    border-radius: 0 0 12px 12px;
+  }
+</style>
+</head>
+<body>
+
+<audio id="bgMusic" loop preload="auto" src="bg-music.mp3"></audio>
+
+<div id="gameWrapper">
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Persian Title -->
+  <div id="gameTitle">به دماغ ایلیا شلیک کن</div>
+
+  <!-- Start Screen -->
+  <div id="startScreen" class="overlay active">
+    <div class="overlay-card">
+      <div class="emoji-big">👃🚀</div>
+      <h1>Nostril Blaster</h1>
+      <p>Pilot your ship and blast bullets straight into the nostrils! You have 20 seconds. How many can you land?</p>
+      <button class="btn" id="startBtn">Launch!</button>
+      <div class="controls-hint">Space / Click / Tap to shoot</div>
+    </div>
+  </div>
+
+  <!-- End Screen -->
+  <div id="endScreen" class="overlay">
+    <div class="overlay-card">
+      <div class="emoji-big">🏆</div>
+      <h1>Time's Up!</h1>
+      <div class="score-label">Final Score</div>
+      <div class="score-display" id="finalScore">0</div>
+      <p id="endMessage">Nice shooting!</p>
+      <button class="btn" id="restartBtn">Play Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =============================================
+// CONFIGURATION
+// =============================================
+const DEBUG_MODE = false;
+const GAME_DURATION = 30; // seconds
+
+// Configuration for a 1080x1920 Vertical Image
+const IMG_CONFIG = {
+  width: 1080,
+  height: 1920,
+  targets: [
+    { xMin: 470, xMax: 525, yMin: 910, yMax: 930 }, // Left Nostril
+    { xMin: 560, xMax: 625, yMin: 910, yMax: 930 }  // Right Nostril
+  ]
+};
+
+// =============================================
+// GLOBALS
+// =============================================
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const wrapper = document.getElementById('gameWrapper');
+const startScreen = document.getElementById('startScreen');
+const endScreen = document.getElementById('endScreen');
+const startBtn = document.getElementById('startBtn');
+const restartBtn = document.getElementById('restartBtn');
+const finalScoreEl = document.getElementById('finalScore');
+const endMessageEl = document.getElementById('endMessage');
+const bgMusic = document.getElementById('bgMusic');
+const gameTitle = document.getElementById('gameTitle');
+
+let gameState = 'idle'; // idle | playing | ended
+let score = 0;
+let timeLeft = GAME_DURATION;
+let gameStartTime = 0;
+let lastTime = 0;
+
+// Rendering
+let scale = 1;
+let offsetX = 0;
+let offsetY = 0;
+let gameAreaX = 0;
+let gameAreaY = 0;
+let gameAreaW = 0;
+let gameAreaH = 0;
+
+// Player
+let player = { x: 0, y: 0, width: 50, height: 40, baseSpeed: 250, dir: 1 };
+
+// Spaceship movement constraints (in image coordinates, 0–1080 range)
+const SHIP_BOUND_LEFT = 200;
+const SHIP_BOUND_RIGHT = 900;
+
+// Bullets
+let bullets = [];
+const BULLET_SPEED = 800;
+
+// Effects
+let screenShake = { intensity: 0, decay: 0.92 };
+let redOverlayOpacity = 0; // 0.0 to 0.8 — accumulates on each hit, never decays
+let starfield = [];
+
+// Face image
+let faceImg = null;
+let faceImgLoaded = false;
+
+// Scaled target zones (recalculated on resize)
+let scaledTargets = [];
+
+// Debug mouse position tracker
+let debugMousePos = { x: 0, y: 0, active: false };
+
+// =============================================
+// BACKGROUND IMAGE - Load from file
+// =============================================
+function loadBackgroundImage() {
+  faceImg = new Image();
+  faceImg.onload = () => {
+    // Update IMG_CONFIG dimensions to match the actual image
+    IMG_CONFIG.width = faceImg.naturalWidth;
+    IMG_CONFIG.height = faceImg.naturalHeight;
+    faceImgLoaded = true;
+    console.log(`✅ background.png loaded: ${IMG_CONFIG.width}x${IMG_CONFIG.height}`);
+    console.log('ℹ️  DEBUG_MODE is ' + (DEBUG_MODE ? 'ON' : 'OFF') + '. Green rectangles show target hit zones.');
+    console.log('ℹ️  Adjust IMG_CONFIG.targets[] coordinates to match nostril positions in your image.');
+    // Recalculate layout now that we know the real image size
+    resize();
+  };
+  faceImg.onerror = () => {
+    console.error('❌ Failed to load "background.png". Make sure the file is in the same folder as index.html.');
+    // Draw a placeholder message on a fallback canvas
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = IMG_CONFIG.width;
+    offCanvas.height = IMG_CONFIG.height;
+    const c = offCanvas.getContext('2d');
+    c.fillStyle = '#1a1a2e';
+    c.fillRect(0, 0, IMG_CONFIG.width, IMG_CONFIG.height);
+    c.fillStyle = '#ff4444';
+    c.font = 'bold 48px sans-serif';
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    c.fillText('⚠ background.png not found', IMG_CONFIG.width / 2, IMG_CONFIG.height / 2 - 40);
+    c.fillStyle = 'rgba(255,255,255,0.5)';
+    c.font = '32px sans-serif';
+    c.fillText('Place "background.png" in the same folder', IMG_CONFIG.width / 2, IMG_CONFIG.height / 2 + 30);
+    c.fillText('as index.html and refresh.', IMG_CONFIG.width / 2, IMG_CONFIG.height / 2 + 75);
+    faceImg = offCanvas;
+    faceImgLoaded = true;
+  };
+  faceImg.src = 'background.png';
+}
+
+// =============================================
+// STARFIELD
+// =============================================
+function initStarfield() {
+  starfield = [];
+  for (let i = 0; i < 80; i++) {
+    starfield.push({
+      x: Math.random(),
+      y: Math.random(),
+      size: Math.random() * 2 + 0.5,
+      speed: Math.random() * 40 + 10,
+      alpha: Math.random() * 0.5 + 0.3
+    });
+  }
+}
+
+function updateStarfield(dt) {
+  for (const s of starfield) {
+    s.y += s.speed * dt / IMG_CONFIG.height;
+    if (s.y > 1) { s.y = 0; s.x = Math.random(); }
+  }
+}
+
+function drawStarfield() {
+  for (const s of starfield) {
+    const sx = gameAreaX + s.x * gameAreaW;
+    const sy = gameAreaY + s.y * gameAreaH;
+    ctx.fillStyle = `rgba(255,255,255,${s.alpha})`;
+    ctx.beginPath();
+    ctx.arc(sx, sy, s.size * scale, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+// =============================================
+// RESIZE & LAYOUT
+// =============================================
+function resize() {
+  canvas.width = wrapper.clientWidth;
+  canvas.height = wrapper.clientHeight;
+
+  // Calculate scale to fit 1080x1920 in canvas
+  scale = Math.min(canvas.width / IMG_CONFIG.width, canvas.height / IMG_CONFIG.height);
+
+  gameAreaW = IMG_CONFIG.width * scale;
+  gameAreaH = IMG_CONFIG.height * scale;
+  gameAreaX = (canvas.width - gameAreaW) / 2;
+  gameAreaY = (canvas.height - gameAreaH) / 2;
+
+  offsetX = gameAreaX;
+  offsetY = gameAreaY;
+
+  // Recalculate scaled targets
+  scaledTargets = IMG_CONFIG.targets.map(t => ({
+    x: offsetX + t.xMin * scale,
+    y: offsetY + t.yMin * scale,
+    w: (t.xMax - t.xMin) * scale,
+    h: (t.yMax - t.yMin) * scale,
+    xCenter: offsetX + ((t.xMin + t.xMax) / 2) * scale,
+    yCenter: offsetY + ((t.yMin + t.yMax) / 2) * scale
+  }));
+
+  // Position overlays over game area
+  const overlays = document.querySelectorAll('.overlay');
+  overlays.forEach(ov => {
+    ov.style.left = gameAreaX + 'px';
+    ov.style.top = gameAreaY + 'px';
+    ov.style.width = gameAreaW + 'px';
+    ov.style.height = gameAreaH + 'px';
+  });
+
+  // Position Persian title centered at the top of the game area
+  if (gameTitle) {
+    gameTitle.style.left = gameAreaX + 'px';
+    gameTitle.style.top = gameAreaY + 'px';
+    gameTitle.style.width = gameAreaW + 'px';
+    gameTitle.style.fontSize = Math.max(16, 28 * scale) + 'px';
+  }
+
+  // Reset player position
+  player.x = offsetX + gameAreaW / 2;
+  player.y = offsetY + gameAreaH - 80 * scale;
+  player.width = 50 * scale;
+  player.height = 40 * scale;
+}
+
+// =============================================
+// PLAYER
+// =============================================
+function updatePlayer(dt, elapsed) {
+  // Speed increases linearly: base + extra over time
+  const speedMultiplier = 1 + (elapsed / GAME_DURATION) * 3.5;
+  const speed = player.baseSpeed * scale * speedMultiplier;
+
+  player.x += player.dir * speed * dt;
+
+  // Bounce within constrained image-coordinate boundaries (SHIP_BOUND_LEFT – SHIP_BOUND_RIGHT)
+  const leftBound = offsetX + SHIP_BOUND_LEFT * scale;
+  const rightBound = offsetX + SHIP_BOUND_RIGHT * scale;
+  if (player.x <= leftBound) { player.x = leftBound; player.dir = 1; }
+  if (player.x >= rightBound) { player.x = rightBound; player.dir = -1; }
+}
+
+function drawPlayer() {
+  const px = player.x;
+  const py = player.y;
+  const w = player.width;
+  const h = player.height;
+
+  ctx.save();
+  ctx.translate(px, py);
+
+  // Engine glow
+  const glowGrad = ctx.createRadialGradient(0, h * 0.6, 2, 0, h * 0.6, w * 0.4);
+  glowGrad.addColorStop(0, 'rgba(255, 150, 50, 0.8)');
+  glowGrad.addColorStop(0.5, 'rgba(255, 80, 20, 0.3)');
+  glowGrad.addColorStop(1, 'rgba(255, 50, 10, 0)');
+  ctx.fillStyle = glowGrad;
+  ctx.beginPath();
+  ctx.ellipse(0, h * 0.6, w * 0.35, h * (0.3 + Math.random() * 0.15), 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Ship body
+  ctx.fillStyle = '#8af';
+  ctx.beginPath();
+  ctx.moveTo(0, -h * 0.6);         // Nose
+  ctx.lineTo(-w * 0.45, h * 0.4);  // Left
+  ctx.lineTo(-w * 0.15, h * 0.25);
+  ctx.lineTo(0, h * 0.35);
+  ctx.lineTo(w * 0.15, h * 0.25);
+  ctx.lineTo(w * 0.45, h * 0.4);   // Right
+  ctx.closePath();
+  ctx.fillStyle = '#667ecc';
+  ctx.fill();
+  ctx.strokeStyle = '#aaccff';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Cockpit
+  ctx.fillStyle = '#cef';
+  ctx.beginPath();
+  ctx.ellipse(0, -h * 0.1, w * 0.1, h * 0.18, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+// =============================================
+// BULLETS
+// =============================================
+function shoot() {
+  if (gameState !== 'playing') return;
+  bullets.push({
+    x: player.x,
+    y: player.y - player.height * 0.6,
+    radius: 4 * scale,
+    speed: BULLET_SPEED * scale,
+    isHit: false,      // flag: set true on nostril collision
+    opacity: 1.0,      // fades from 1.0 → 0 after hit
+    trail: []
+  });
+}
+
+function updateBullets(dt) {
+  for (let i = bullets.length - 1; i >= 0; i--) {
+    const b = bullets[i];
+
+    if (b.isHit) {
+      // ── Fade-out after hit: decrease opacity ~0.1 per frame (~6 frames to vanish at 60fps) ──
+      b.opacity -= 0.1;
+      if (b.opacity <= 0) {
+        bullets.splice(i, 1);
+        continue;
+      }
+    } else {
+      // ── Normal movement ──
+      b.y -= b.speed * dt;
+
+      // Trail breadcrumbs
+      b.trail.push({ x: b.x, y: b.y, life: 0.15 });
+      if (b.trail.length > 10) b.trail.shift();
+
+      // Check collision with nostril targets
+      for (const t of scaledTargets) {
+        if (b.x >= t.x && b.x <= t.x + t.w && b.y >= t.y && b.y <= t.y + t.h) {
+          b.isHit = true;          // stop moving, start fading
+          score++;
+          redOverlayOpacity = Math.min(redOverlayOpacity + 0.02, 0.5);
+          screenShake.intensity = 8 * scale;
+          break;
+        }
+      }
+
+      // Remove if out of bounds (flew off top)
+      if (!b.isHit && b.y < offsetY - 20) {
+        bullets.splice(i, 1);
+        continue;
+      }
+    }
+
+    // Update trail particles
+    for (let j = b.trail.length - 1; j >= 0; j--) {
+      b.trail[j].life -= dt;
+      if (b.trail[j].life <= 0) b.trail.splice(j, 1);
+    }
+  }
+}
+
+function drawBullets() {
+  for (const b of bullets) {
+    const alpha = Math.max(0, b.opacity);
+
+    // Trail
+    for (const t of b.trail) {
+      const ta = (t.life / 0.15) * 0.4 * alpha;
+      ctx.fillStyle = `rgba(255, 200, 80, ${ta})`;
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, b.radius * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Bullet glow + core
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.radius * 2);
+    grad.addColorStop(0, '#fff');
+    grad.addColorStop(0.3, b.isHit ? '#ff4444' : '#ffcc44');
+    grad.addColorStop(1, 'rgba(255,180,50,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.radius * 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.radius * 0.6, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
+
+// =============================================
+// SCREEN SHAKE
+// =============================================
+function applyScreenShake() {
+  if (screenShake.intensity > 0.5) {
+    const dx = (Math.random() - 0.5) * screenShake.intensity * 2;
+    const dy = (Math.random() - 0.5) * screenShake.intensity * 2;
+    ctx.translate(dx, dy);
+    screenShake.intensity *= screenShake.decay;
+  } else {
+    screenShake.intensity = 0;
+  }
+}
+
+// =============================================
+// DRAWING
+// =============================================
+function drawBackground() {
+  // Black background (letterbox)
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawFace() {
+  if (!faceImgLoaded) return;
+  // "Contain" logic: the image is scaled to fit entirely within the game area
+  // (gameAreaW/H already computed from Math.min scale), drawn at offsetX/Y
+  ctx.drawImage(faceImg, offsetX, offsetY, gameAreaW, gameAreaH);
+}
+
+function drawRedTint() {
+  if (redOverlayOpacity > 0) {
+    ctx.fillStyle = "rgba(255, 0, 0, " + redOverlayOpacity + ")";
+    ctx.fillRect(offsetX, offsetY, gameAreaW, gameAreaH);
+  }
+  // No decay — red tint accumulates permanently during the round
+}
+
+function drawDebugTargets() {
+  if (!DEBUG_MODE) return;
+  ctx.strokeStyle = '#00ff00';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6, 4]);
+  for (let i = 0; i < scaledTargets.length; i++) {
+    const t = scaledTargets[i];
+    const orig = IMG_CONFIG.targets[i];
+    ctx.strokeRect(t.x, t.y, t.w, t.h);
+    // Fill with semi-transparent green
+    ctx.fillStyle = 'rgba(0, 255, 0, 0.12)';
+    ctx.fillRect(t.x, t.y, t.w, t.h);
+    // Label with original pixel coords
+    ctx.fillStyle = '#00ff00';
+    ctx.font = `bold ${Math.max(10, 12 * scale)}px monospace`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'bottom';
+    const label = `Target ${i + 1}: (${orig.xMin},${orig.yMin})→(${orig.xMax},${orig.yMax})`;
+    ctx.fillText(label, t.x, t.y - 4 * scale);
+  }
+  ctx.setLineDash([]);
+
+  // Draw ship movement boundaries
+  const shipLeftX = offsetX + SHIP_BOUND_LEFT * scale;
+  const shipRightX = offsetX + SHIP_BOUND_RIGHT * scale;
+  ctx.strokeStyle = 'rgba(0, 150, 255, 0.5)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([8, 6]);
+  ctx.beginPath();
+  ctx.moveTo(shipLeftX, offsetY + gameAreaH - 120 * scale);
+  ctx.lineTo(shipLeftX, offsetY + gameAreaH);
+  ctx.moveTo(shipRightX, offsetY + gameAreaH - 120 * scale);
+  ctx.lineTo(shipRightX, offsetY + gameAreaH);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(0, 150, 255, 0.7)';
+  ctx.font = `bold ${Math.max(9, 10 * scale)}px monospace`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText(`X=${SHIP_BOUND_LEFT}`, shipLeftX, offsetY + gameAreaH - 122 * scale);
+  ctx.fillText(`X=${SHIP_BOUND_RIGHT}`, shipRightX, offsetY + gameAreaH - 122 * scale);
+
+  // Show mouse/touch coordinate helper
+  if (debugMousePos.active) {
+    const imgX = Math.round((debugMousePos.x - offsetX) / scale);
+    const imgY = Math.round((debugMousePos.y - offsetY) / scale);
+    const coordText = `Img coords: (${imgX}, ${imgY})`;
+    const px = debugMousePos.x;
+    const py = debugMousePos.y;
+
+    // Crosshair at cursor
+    ctx.strokeStyle = 'rgba(255, 255, 0, 0.6)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(offsetX, py); ctx.lineTo(offsetX + gameAreaW, py);
+    ctx.moveTo(px, offsetY); ctx.lineTo(px, offsetY + gameAreaH);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Coord label
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+    const labelW = 220 * scale;
+    const labelH = 24 * scale;
+    const labelX = Math.min(px + 12, offsetX + gameAreaW - labelW - 4);
+    const labelY = Math.max(py - labelH - 8, offsetY + 4);
+    ctx.fillRect(labelX, labelY, labelW, labelH);
+    ctx.fillStyle = '#ffff00';
+    ctx.font = `bold ${Math.max(11, 13 * scale)}px monospace`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(coordText, labelX + 6, labelY + labelH / 2);
+  }
+
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+}
+
+function drawHUD() {
+  const hudY = offsetY + 20 * scale;
+  const hudPad = 16 * scale;
+  const fontSize = Math.max(16, 22 * scale);
+
+  // Timer
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  roundRect(ctx, offsetX + hudPad, hudY, 120 * scale, 44 * scale, 12 * scale);
+  ctx.fill();
+  ctx.fillStyle = timeLeft <= 5 ? '#ff5555' : '#fff';
+  ctx.font = `bold ${fontSize}px 'Segoe UI', sans-serif`;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(`⏱ ${Math.ceil(timeLeft)}s`, offsetX + hudPad + 12 * scale, hudY + 22 * scale);
+
+  // Score
+  const scoreText = `🎯 ${score}`;
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  roundRect(ctx, offsetX + gameAreaW - hudPad - 120 * scale, hudY, 120 * scale, 44 * scale, 12 * scale);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'right';
+  ctx.fillText(scoreText, offsetX + gameAreaW - hudPad - 12 * scale, hudY + 22 * scale);
+
+  // Speed indicator
+  if (gameState === 'playing') {
+    const elapsed = (Date.now() - gameStartTime) / 1000;
+    const speedPct = Math.min(100, Math.round((1 + (elapsed / GAME_DURATION) * 3.5) * 100 / 4.5));
+    const barW = 100 * scale;
+    const barH = 6 * scale;
+    const barX = offsetX + (gameAreaW - barW) / 2;
+    const barY = hudY + 36 * scale;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillRect(barX, barY, barW, barH);
+    const sGrad = ctx.createLinearGradient(barX, 0, barX + barW * speedPct / 100, 0);
+    sGrad.addColorStop(0, '#44ff88');
+    sGrad.addColorStop(1, '#ff4444');
+    ctx.fillStyle = sGrad;
+    ctx.fillRect(barX, barY, barW * speedPct / 100, barH);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = `${10 * scale}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('SPEED', offsetX + gameAreaW / 2, hudY + 24 * scale);
+  }
+
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+// Vignette on game area
+function drawVignette() {
+  const cx = offsetX + gameAreaW / 2;
+  const cy = offsetY + gameAreaH / 2;
+  const r = Math.max(gameAreaW, gameAreaH) * 0.7;
+  const grad = ctx.createRadialGradient(cx, cy, r * 0.3, cx, cy, r);
+  grad.addColorStop(0, 'rgba(0,0,0,0)');
+  grad.addColorStop(1, 'rgba(0,0,0,0.45)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(offsetX, offsetY, gameAreaW, gameAreaH);
+}
+
+// Crosshair indicators on targets
+function drawTargetIndicators() {
+  if (gameState !== 'playing') return;
+  const t = Date.now() / 1000;
+  for (const target of scaledTargets) {
+    const pulse = Math.sin(t * 4) * 0.3 + 0.7;
+    ctx.strokeStyle = `rgba(255, 80, 80, ${0.3 * pulse})`;
+    ctx.lineWidth = 1.5;
+    const cx = target.xCenter;
+    const cy = target.yCenter;
+    const sz = Math.max(target.w, target.h) * 1.2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, sz * 0.6, 0, Math.PI * 2);
+    ctx.stroke();
+    // Crosshair lines
+    const len = sz * 0.3;
+    ctx.beginPath();
+    ctx.moveTo(cx - sz * 0.6 - len, cy); ctx.lineTo(cx - sz * 0.6 + 4, cy);
+    ctx.moveTo(cx + sz * 0.6 + len, cy); ctx.lineTo(cx + sz * 0.6 - 4, cy);
+    ctx.moveTo(cx, cy - sz * 0.6 - len); ctx.lineTo(cx, cy - sz * 0.6 + 4);
+    ctx.moveTo(cx, cy + sz * 0.6 + len); ctx.lineTo(cx, cy + sz * 0.6 - 4);
+    ctx.stroke();
+  }
+}
+
+// =============================================
+// GAME LOOP
+// =============================================
+function gameLoop(timestamp) {
+  if (!lastTime) lastTime = timestamp;
+  const dt = Math.min((timestamp - lastTime) / 1000, 0.05); // cap delta
+  lastTime = timestamp;
+
+  if (gameState === 'playing') {
+    const elapsed = (Date.now() - gameStartTime) / 1000;
+    timeLeft = Math.max(0, GAME_DURATION - elapsed);
+
+    updatePlayer(dt, elapsed);
+    updateBullets(dt);
+    updateStarfield(dt);
+
+    if (timeLeft <= 0) {
+      endGame();
+    }
+  }
+
+  // --- DRAW ---
+  ctx.save();
+  drawBackground();
+  applyScreenShake();
+
+  // Clip to game area for all game rendering
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(offsetX, offsetY, gameAreaW, gameAreaH);
+  ctx.clip();
+
+  drawFace();
+  drawStarfield();
+  drawRedTint();
+  drawVignette();
+  drawTargetIndicators();
+  drawDebugTargets();
+
+  if (gameState === 'playing') {
+    drawBullets();
+    drawPlayer();
+    drawHUD();
+  }
+
+  ctx.restore();
+  ctx.restore();
+
+  // Game area border
+  ctx.strokeStyle = 'rgba(100, 130, 255, 0.15)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(offsetX, offsetY, gameAreaW, gameAreaH);
+
+  requestAnimationFrame(gameLoop);
+}
+
+// =============================================
+// GAME STATE
+// =============================================
+function startGame() {
+  score = 0;
+  timeLeft = GAME_DURATION;
+  gameStartTime = Date.now();
+  bullets = [];
+  redOverlayOpacity = 0;
+  screenShake.intensity = 0;
+  player.dir = 1;
+  player.x = offsetX + gameAreaW / 2;
+
+  gameState = 'playing';
+  startScreen.classList.remove('active');
+  endScreen.classList.remove('active');
+
+  try { bgMusic.currentTime = 0; bgMusic.play().catch(() => {}); } catch(e) {}
+}
+
+function endGame() {
+  gameState = 'ended';
+  finalScoreEl.textContent = score;
+
+  if (score === 0) endMessageEl.textContent = "Maybe aim for the nose next time! 😅";
+  else if (score < 10) endMessageEl.textContent = "Getting warmer! Keep practicing! 🎯";
+  else if (score < 25) endMessageEl.textContent = "Nice aim! Solid shooting! 🔥";
+  else if (score < 40) endMessageEl.textContent = "Wow, nostril sniper! 🏆";
+  else endMessageEl.textContent = "LEGENDARY! Absolute nostril destroyer! 💀🚀";
+
+  setTimeout(() => { endScreen.classList.add('active'); }, 300);
+  try { bgMusic.pause(); } catch(e) {}
+}
+
+// =============================================
+// INPUT
+// =============================================
+function handleShoot(e) {
+  if (e) e.preventDefault();
+  if (gameState === 'playing') shoot();
+}
+
+// Keyboard
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    handleShoot();
+  }
+});
+
+// Mouse click
+canvas.addEventListener('mousedown', (e) => {
+  handleShoot(e);
+});
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+// Touch
+canvas.addEventListener('touchstart', (e) => {
+  handleShoot(e);
+}, { passive: false });
+
+// Buttons
+startBtn.addEventListener('click', startGame);
+startBtn.addEventListener('touchend', (e) => { e.preventDefault(); startGame(); });
+restartBtn.addEventListener('click', startGame);
+restartBtn.addEventListener('touchend', (e) => { e.preventDefault(); startGame(); });
+
+// Debug: track mouse position for coordinate helper
+if (DEBUG_MODE) {
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    debugMousePos.x = e.clientX - rect.left;
+    debugMousePos.y = e.clientY - rect.top;
+    debugMousePos.active = true;
+  });
+  canvas.addEventListener('mouseleave', () => {
+    debugMousePos.active = false;
+  });
+}
+
+// Resize
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => setTimeout(resize, 100));
+
+// =============================================
+// INIT
+// =============================================
+loadBackgroundImage();
+initStarfield();
+resize();
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
