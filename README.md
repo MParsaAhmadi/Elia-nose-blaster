@@ -3,7 +3,7 @@
 
 A simple, fun browser game developed as a friendly prank. The goal is to shoot bullets into the target's nostrils before the time runs out!
 
-**🔗 [Play the Game]([https://your-username.github.io/your-repo-name/](https://mparsaahmadi.github.io/Elia-nose-blaster/))**
+**🔗 [Play the Game](https://mparsaahmadi.github.io/Elia-nose-blaster/)**
 
 ## ℹ️ About
 This project is **not a serious product**. It was created purely for fun and humor to joke around with my friend, Ilya.
