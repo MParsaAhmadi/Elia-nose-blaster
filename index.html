@@ -814,7 +814,8 @@ function endGame() {
    else if (score < 130) endMessageEl.textContent = "کیرتم دست ایلیا ندادی. درست مثل ریحانه: لول 6 🏆";
    else if (score < 150) endMessageEl.textContent = "لول (7): لجندری. بکن حرفه ای کیمیا 💀🚀";
    else if (score < 170) endMessageEl.textContent = " دست که نیست ویبراتور زن ایلیاس: لول 8";
-  else endMessageEl.textContent = "لول 9: آذربایجان شرفدی، پهلوی بیشرف دی";
+    else if (score < 240) endMessageEl.textContent = " لول 9: آذربایجان شرفدی، پهلوی بیشرف دی";
+  else endMessageEl.textContent = "لول سوپر رویال لجندری فوق تخصصی ویژه تشریفاتی (10): بکن مسعود";
 
   setTimeout(() => { endScreen.classList.add('active'); }, 300);
   try { bgMusic.pause(); } catch(e) {}
