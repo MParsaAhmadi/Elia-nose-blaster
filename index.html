@@ -806,11 +806,13 @@ function endGame() {
   gameState = 'ended';
   finalScoreEl.textContent = score;
 
-  if (score < 17) endMessageEl.textContent = "ریدی که. لول 1: کصلیس نگین";
-  else if (score < 24) endMessageEl.textContent = "بد نبود. لول 2: خایمال پریسا";
-  else if (score < 29) endMessageEl.textContent = "خوبه آفرین. لول 3: بابایی کیمیا";
-  else if (score < 33) endMessageEl.textContent = "گاییدی ایلیارو. لول 4: پریا پاپیلونی 🏆";
-  else endMessageEl.textContent = "برترین لول (5): لجندری. بکن حرفه ای کیمیا 💀🚀";
+  if (score < 20) endMessageEl.textContent = "ریدی که. لول 1: کصلیس نگین";
+  else if (score < 40) endMessageEl.textContent = "بد نبود. لول 2: خایمال پریسا";
+   else if (score < 70) endMessageEl.textContent = "اوکیه. پالیس ایلدا لول 3";
+  else if (score < 90) endMessageEl.textContent = "خوبه آفرین. لول 4: بابایی کیمیا";
+  else if (score < 110) endMessageEl.textContent = "گاییدی ایلیارو. لول 5: پریا پاپیلونی 🏆";
+   else if (score < 140) endMessageEl.textContent = "لول (6): لجندری. بکن حرفه ای کیمیا 💀🚀";
+  else endMessageEl.textContent = " دست که نیست ویبراتور زن ایلیاس: لول 7";
 
   setTimeout(() => { endScreen.classList.add('active'); }, 300);
   try { bgMusic.pause(); } catch(e) {}
