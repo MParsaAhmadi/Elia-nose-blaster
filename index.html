@@ -143,8 +143,8 @@
   <div id="endScreen" class="overlay">
     <div class="overlay-card">
       <div class="emoji-big">🏆</div>
-      <h1>Time's Up!</h1>
-      <div class="score-label">Final Score</div>
+      <h1>وقت تمام</h1>
+      <div class="score-label">چندبار کصخار ایلیا شد؟</div>
       <div class="score-display" id="finalScore">0</div>
       <p id="endMessage">Nice shooting!</p>
       <button class="btn" id="restartBtn">دوباره</button>
@@ -806,10 +806,10 @@ function endGame() {
   gameState = 'ended';
   finalScoreEl.textContent = score;
 
-  if (score < 15) endMessageEl.textContent = "ریدی که. لولت: کصلیس نگین";
+  if (score < 14) endMessageEl.textContent = "ریدی که. لولت: کصلیس نگین";
   else if (score < 20) endMessageEl.textContent = "بد نبود. لولت: خایمال پریسا";
-  else if (score < 30) endMessageEl.textContent = "خوبه آفرین. لولت: بابایی کیمیا";
-  else if (score < 40) endMessageEl.textContent = "گاییدی ایلیارو. لولت: پریا پاپیلونی 🏆";
+  else if (score < 27) endMessageEl.textContent = "خوبه آفرین. لولت: بابایی کیمیا";
+  else if (score < 34) endMessageEl.textContent = "گاییدی ایلیارو. لولت: پریا پاپیلونی 🏆";
   else endMessageEl.textContent = "کصخار ایلیا 💀🚀";
 
   setTimeout(() => { endScreen.classList.add('active'); }, 300);
