@@ -658,7 +658,7 @@ function updateBullets(dt) {
         if (b.x >= t.x && b.x <= t.x + t.w && b.y >= t.y && b.y <= t.y + t.h) {
           b.isHit = true;
           score++;
-          redOverlayOpacity = Math.min(redOverlayOpacity + 0.02, 0.5);
+          redOverlayOpacity = Math.min(redOverlayOpacity + 0.004, 0.5);
           screenShake.intensity = 8 * scale;
 
           // Floating "+1" text at hit location
