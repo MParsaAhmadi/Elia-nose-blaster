@@ -4,13 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Nostril Blaster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;800;900&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body {
     width: 100%; height: 100%;
     background: #000;
     overflow: hidden;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Vazirmatn', 'Segoe UI', system-ui, -apple-system, sans-serif;
     touch-action: none;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -46,11 +49,12 @@
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     box-shadow: 0 0 60px rgba(100, 60, 255, 0.25), inset 0 1px 0 rgba(255,255,255,0.08);
-    max-width: 340px;
-    width: 85%;
+    max-width: 360px;
+    width: 88%;
   }
   .overlay-card h1 {
-    font-size: 2rem; font-weight: 800;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 2rem; font-weight: 900;
     background: linear-gradient(135deg, #ff6bcb, #6b8aff, #00e4ff);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -59,25 +63,40 @@
     letter-spacing: 2px;
   }
   .overlay-card p {
+    font-family: 'Vazirmatn', sans-serif;
     color: rgba(255,255,255,0.6);
     font-size: 0.85rem;
-    line-height: 1.6;
+    line-height: 1.8;
     margin-bottom: 24px;
   }
   .overlay-card .score-display {
+    font-family: 'Vazirmatn', sans-serif;
     font-size: 3.5rem; font-weight: 900;
     color: #fff;
     margin: 10px 0;
     text-shadow: 0 0 30px rgba(107,138,255,0.5);
   }
   .overlay-card .score-label {
+    font-family: 'Vazirmatn', sans-serif;
     color: rgba(255,255,255,0.4);
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 3px;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
+  }
+  .overlay-card .rank-display {
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    direction: rtl;
+    margin: 6px 0 20px 0;
+    padding: 8px 16px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
   }
   .btn {
+    font-family: 'Vazirmatn', sans-serif;
     display: inline-block;
     padding: 14px 40px;
     border: none; border-radius: 50px;
@@ -94,6 +113,7 @@
   .btn:active { transform: scale(0.97); }
   .emoji-big { font-size: 4rem; margin-bottom: 8px; }
   .controls-hint {
+    font-family: 'Vazirmatn', sans-serif;
     color: rgba(255,255,255,0.35);
     font-size: 0.7rem;
     margin-top: 16px;
@@ -104,16 +124,16 @@
     z-index: 5;
     color: #fff;
     font-size: 1.6rem;
-    font-weight: 800;
+    font-weight: 900;
     text-align: center;
     direction: rtl;
-    font-family: 'Segoe UI', Tahoma, 'Arial', sans-serif;
+    font-family: 'Vazirmatn', 'Segoe UI', Tahoma, 'Arial', sans-serif;
     text-shadow: 0 2px 8px rgba(0,0,0,0.85), 0 0 20px rgba(107,138,255,0.5), 0 0 40px rgba(255,107,203,0.3);
     pointer-events: none;
     letter-spacing: 1px;
-    line-height: 1.4;
-    padding: 8px 16px;
-    background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%);
+    line-height: 1.6;
+    padding: 10px 16px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
     border-radius: 0 0 12px 12px;
   }
 </style>
@@ -132,22 +152,23 @@
   <div id="startScreen" class="overlay active">
     <div class="overlay-card">
       <div class="emoji-big">👃🚀</div>
-      <h1>ایلیا دماغ گنده</h1>
-      <p>کیر کوچولتو بکن تو دماغ ایلیا</p>
+      <h1>Nostril Blaster</h1>
+      <p>به دماغ شلیک کن! ۲۰ ثانیه وقت داری. چند تا میتونی بزنی؟</p>
       <button class="btn" id="startBtn">شروع!</button>
-      <div class="controls-hint">بابایی کیمیا</div>
+      <div class="controls-hint">Space / Click / Tap to shoot</div>
     </div>
   </div>
 
   <!-- End Screen -->
   <div id="endScreen" class="overlay">
     <div class="overlay-card">
-      <div class="emoji-big">🏆</div>
-      <h1>وقت تمام</h1>
-      <div class="score-label">چندبار کصخار ایلیا شد؟</div>
+      <div class="emoji-big" id="endEmoji">🏆</div>
+      <h1>تموم شد!</h1>
+      <div class="score-label">امتیاز نهایی</div>
       <div class="score-display" id="finalScore">0</div>
-      <p id="endMessage">Nice shooting!</p>
-      <button class="btn" id="restartBtn">دوباره</button>
+      <div class="rank-display" id="rankDisplay">رتبه: تازه‌کار</div>
+      <p id="endMessage">آفرین!</p>
+      <button class="btn" id="restartBtn">دوباره بازی کن</button>
     </div>
   </div>
 </div>
@@ -164,8 +185,8 @@ const IMG_CONFIG = {
   width: 1080,
   height: 1920,
   targets: [
-    { xMin: 470, xMax: 525, yMin: 910, yMax: 925 }, // Left Nostril
-    { xMin: 560, xMax: 625, yMin: 910, yMax: 925 }  // Right Nostril
+    { xMin: 470, xMax: 525, yMin: 910, yMax: 945 }, // Left Nostril
+    { xMin: 560, xMax: 625, yMin: 910, yMax: 945 }  // Right Nostril
   ]
 };
 
@@ -181,6 +202,8 @@ const startBtn = document.getElementById('startBtn');
 const restartBtn = document.getElementById('restartBtn');
 const finalScoreEl = document.getElementById('finalScore');
 const endMessageEl = document.getElementById('endMessage');
+const rankDisplayEl = document.getElementById('rankDisplay');
+const endEmojiEl = document.getElementById('endEmoji');
 const bgMusic = document.getElementById('bgMusic');
 const gameTitle = document.getElementById('gameTitle');
 
@@ -212,8 +235,10 @@ const BULLET_SPEED = 800;
 
 // Effects
 let screenShake = { intensity: 0, decay: 0.92 };
-let redOverlayOpacity = 0; // 0.0 to 0.8 — accumulates on each hit, never decays
+let redOverlayOpacity = 0;
 let starfield = [];
+let floatingTexts = [];    // "+1" floating score popups
+let muzzleFlash = { active: false, timer: 0, x: 0, y: 0 };
 
 // Face image
 let faceImg = null;
@@ -226,24 +251,93 @@ let scaledTargets = [];
 let debugMousePos = { x: 0, y: 0, active: false };
 
 // =============================================
+// AUDIO CONTEXT — Synthesized SFX
+// =============================================
+let audioCtx = null;
+
+function initAudioContext() {
+  if (audioCtx) return;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch(e) {
+    console.warn('AudioContext not available');
+  }
+}
+
+function playShootSFX() {
+  if (!audioCtx) return;
+  try {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.03);
+    osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.08);
+
+    gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+
+    osc.start(audioCtx.currentTime);
+    osc.stop(audioCtx.currentTime + 0.1);
+  } catch(e) {}
+}
+
+function playHitSFX() {
+  if (!audioCtx) return;
+  try {
+    // Satisfying "ding" / thud combo
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const gain1 = audioCtx.createGain();
+    const gain2 = audioCtx.createGain();
+
+    osc1.connect(gain1);
+    gain1.connect(audioCtx.destination);
+    osc2.connect(gain2);
+    gain2.connect(audioCtx.destination);
+
+    // High ding
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(1200, audioCtx.currentTime);
+    osc1.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.15);
+    gain1.gain.setValueAtTime(0.18, audioCtx.currentTime);
+    gain1.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+
+    // Low thud
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(200, audioCtx.currentTime);
+    osc2.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.12);
+    gain2.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    gain2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+
+    osc1.start(audioCtx.currentTime);
+    osc1.stop(audioCtx.currentTime + 0.2);
+    osc2.start(audioCtx.currentTime);
+    osc2.stop(audioCtx.currentTime + 0.15);
+  } catch(e) {}
+}
+
+// =============================================
 // BACKGROUND IMAGE - Load from file
 // =============================================
 function loadBackgroundImage() {
   faceImg = new Image();
   faceImg.onload = () => {
-    // Update IMG_CONFIG dimensions to match the actual image
     IMG_CONFIG.width = faceImg.naturalWidth;
     IMG_CONFIG.height = faceImg.naturalHeight;
     faceImgLoaded = true;
     console.log(`✅ background.png loaded: ${IMG_CONFIG.width}x${IMG_CONFIG.height}`);
-    console.log('ℹ️  DEBUG_MODE is ' + (DEBUG_MODE ? 'ON' : 'OFF') + '. Green rectangles show target hit zones.');
-    console.log('ℹ️  Adjust IMG_CONFIG.targets[] coordinates to match nostril positions in your image.');
-    // Recalculate layout now that we know the real image size
+    if (DEBUG_MODE) {
+      console.log('ℹ️  DEBUG_MODE is ON. Green rectangles show target hit zones.');
+      console.log('ℹ️  Hover to see image coordinates. Adjust IMG_CONFIG.targets[].');
+    }
     resize();
   };
   faceImg.onerror = () => {
-    console.error('❌ Failed to load "background.png". Make sure the file is in the same folder as index.html.');
-    // Draw a placeholder message on a fallback canvas
+    console.error('❌ Failed to load "background.png". Place it in the same folder as index.html.');
     const offCanvas = document.createElement('canvas');
     offCanvas.width = IMG_CONFIG.width;
     offCanvas.height = IMG_CONFIG.height;
@@ -300,13 +394,131 @@ function drawStarfield() {
 }
 
 // =============================================
+// FLOATING SCORE TEXT
+// =============================================
+function spawnFloatingText(x, y, text) {
+  floatingTexts.push({
+    x: x,
+    y: y,
+    text: text || '+1',
+    life: 0.6,
+    maxLife: 0.6,
+    vy: -80 * scale, // float upward speed
+    scale: 1.5
+  });
+}
+
+function updateFloatingTexts(dt) {
+  for (let i = floatingTexts.length - 1; i >= 0; i--) {
+    const ft = floatingTexts[i];
+    ft.life -= dt;
+    ft.y += ft.vy * dt;
+    ft.scale *= 0.995; // slightly shrink
+    if (ft.life <= 0) {
+      floatingTexts.splice(i, 1);
+    }
+  }
+}
+
+function drawFloatingTexts() {
+  for (const ft of floatingTexts) {
+    const progress = ft.life / ft.maxLife; // 1 → 0
+    const alpha = Math.min(1, progress * 2); // fade in last half
+    const yOff = (1 - progress) * -10 * scale; // extra drift
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.font = `bold ${Math.max(18, 28 * scale * ft.scale)}px 'Vazirmatn', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Shadow / glow
+    ctx.shadowColor = 'rgba(255, 200, 50, 0.8)';
+    ctx.shadowBlur = 12 * scale;
+
+    // Outline
+    ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+    ctx.lineWidth = 3 * scale;
+    ctx.strokeText(ft.text, ft.x, ft.y + yOff);
+
+    // Fill with gradient feel
+    ctx.fillStyle = '#ffee44';
+    ctx.fillText(ft.text, ft.x, ft.y + yOff);
+
+    ctx.shadowBlur = 0;
+    ctx.restore();
+  }
+}
+
+// =============================================
+// MUZZLE FLASH
+// =============================================
+function triggerMuzzleFlash() {
+  muzzleFlash.active = true;
+  muzzleFlash.timer = 0.1; // 0.1 seconds
+  muzzleFlash.x = player.x;
+  muzzleFlash.y = player.y - player.height * 0.6;
+}
+
+function updateMuzzleFlash(dt) {
+  if (muzzleFlash.active) {
+    muzzleFlash.timer -= dt;
+    if (muzzleFlash.timer <= 0) {
+      muzzleFlash.active = false;
+    }
+  }
+}
+
+function drawMuzzleFlash() {
+  if (!muzzleFlash.active) return;
+
+  const progress = muzzleFlash.timer / 0.1; // 1 → 0
+  const r = (12 + Math.random() * 6) * scale * progress;
+  const x = muzzleFlash.x;
+  const y = muzzleFlash.y;
+
+  ctx.save();
+  ctx.globalAlpha = progress;
+
+  // Outer glow
+  const grad = ctx.createRadialGradient(x, y, 0, x, y, r * 2.5);
+  grad.addColorStop(0, 'rgba(255, 255, 200, 0.9)');
+  grad.addColorStop(0.3, 'rgba(255, 200, 50, 0.6)');
+  grad.addColorStop(0.6, 'rgba(255, 150, 20, 0.2)');
+  grad.addColorStop(1, 'rgba(255, 100, 0, 0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(x, y, r * 2.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Inner bright core
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(x, y, r * 0.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Spikes
+  ctx.strokeStyle = `rgba(255, 230, 150, ${0.7 * progress})`;
+  ctx.lineWidth = 2 * scale * progress;
+  for (let a = 0; a < 4; a++) {
+    const angle = (a / 4) * Math.PI * 2 + Math.random() * 0.3;
+    const len = r * (1.5 + Math.random());
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + Math.cos(angle) * len, y + Math.sin(angle) * len);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+// =============================================
 // RESIZE & LAYOUT
 // =============================================
 function resize() {
   canvas.width = wrapper.clientWidth;
   canvas.height = wrapper.clientHeight;
 
-  // Calculate scale to fit 1080x1920 in canvas
   scale = Math.min(canvas.width / IMG_CONFIG.width, canvas.height / IMG_CONFIG.height);
 
   gameAreaW = IMG_CONFIG.width * scale;
@@ -317,7 +529,6 @@ function resize() {
   offsetX = gameAreaX;
   offsetY = gameAreaY;
 
-  // Recalculate scaled targets
   scaledTargets = IMG_CONFIG.targets.map(t => ({
     x: offsetX + t.xMin * scale,
     y: offsetY + t.yMin * scale,
@@ -327,7 +538,6 @@ function resize() {
     yCenter: offsetY + ((t.yMin + t.yMax) / 2) * scale
   }));
 
-  // Position overlays over game area
   const overlays = document.querySelectorAll('.overlay');
   overlays.forEach(ov => {
     ov.style.left = gameAreaX + 'px';
@@ -336,7 +546,6 @@ function resize() {
     ov.style.height = gameAreaH + 'px';
   });
 
-  // Position Persian title centered at the top of the game area
   if (gameTitle) {
     gameTitle.style.left = gameAreaX + 'px';
     gameTitle.style.top = gameAreaY + 'px';
@@ -344,7 +553,6 @@ function resize() {
     gameTitle.style.fontSize = Math.max(16, 28 * scale) + 'px';
   }
 
-  // Reset player position
   player.x = offsetX + gameAreaW / 2;
   player.y = offsetY + gameAreaH - 80 * scale;
   player.width = 50 * scale;
@@ -355,13 +563,11 @@ function resize() {
 // PLAYER
 // =============================================
 function updatePlayer(dt, elapsed) {
-  // Speed increases linearly: base + extra over time
   const speedMultiplier = 1 + (elapsed / GAME_DURATION) * 3.5;
   const speed = player.baseSpeed * scale * speedMultiplier;
 
   player.x += player.dir * speed * dt;
 
-  // Bounce within constrained image-coordinate boundaries (SHIP_BOUND_LEFT – SHIP_BOUND_RIGHT)
   const leftBound = offsetX + SHIP_BOUND_LEFT * scale;
   const rightBound = offsetX + SHIP_BOUND_RIGHT * scale;
   if (player.x <= leftBound) { player.x = leftBound; player.dir = 1; }
@@ -388,14 +594,13 @@ function drawPlayer() {
   ctx.fill();
 
   // Ship body
-  ctx.fillStyle = '#8af';
   ctx.beginPath();
-  ctx.moveTo(0, -h * 0.6);         // Nose
-  ctx.lineTo(-w * 0.45, h * 0.4);  // Left
+  ctx.moveTo(0, -h * 0.6);
+  ctx.lineTo(-w * 0.45, h * 0.4);
   ctx.lineTo(-w * 0.15, h * 0.25);
   ctx.lineTo(0, h * 0.35);
   ctx.lineTo(w * 0.15, h * 0.25);
-  ctx.lineTo(w * 0.45, h * 0.4);   // Right
+  ctx.lineTo(w * 0.45, h * 0.4);
   ctx.closePath();
   ctx.fillStyle = '#667ecc';
   ctx.fill();
@@ -417,13 +622,18 @@ function drawPlayer() {
 // =============================================
 function shoot() {
   if (gameState !== 'playing') return;
+
+  initAudioContext();
+  playShootSFX();
+  triggerMuzzleFlash();
+
   bullets.push({
     x: player.x,
     y: player.y - player.height * 0.6,
     radius: 4 * scale,
     speed: BULLET_SPEED * scale,
-    isHit: false,      // flag: set true on nostril collision
-    opacity: 1.0,      // fades from 1.0 → 0 after hit
+    isHit: false,
+    opacity: 1.0,
     trail: []
   });
 }
@@ -433,39 +643,41 @@ function updateBullets(dt) {
     const b = bullets[i];
 
     if (b.isHit) {
-      // ── Fade-out after hit: decrease opacity ~0.1 per frame (~6 frames to vanish at 60fps) ──
       b.opacity -= 0.1;
       if (b.opacity <= 0) {
         bullets.splice(i, 1);
         continue;
       }
     } else {
-      // ── Normal movement ──
       b.y -= b.speed * dt;
 
-      // Trail breadcrumbs
       b.trail.push({ x: b.x, y: b.y, life: 0.15 });
       if (b.trail.length > 10) b.trail.shift();
 
-      // Check collision with nostril targets
       for (const t of scaledTargets) {
         if (b.x >= t.x && b.x <= t.x + t.w && b.y >= t.y && b.y <= t.y + t.h) {
-          b.isHit = true;          // stop moving, start fading
+          b.isHit = true;
           score++;
           redOverlayOpacity = Math.min(redOverlayOpacity + 0.02, 0.5);
           screenShake.intensity = 8 * scale;
+
+          // Floating "+1" text at hit location
+          spawnFloatingText(b.x, b.y, '+1');
+
+          // Hit sound
+          playHitSFX();
+
           break;
         }
       }
 
-      // Remove if out of bounds (flew off top)
       if (!b.isHit && b.y < offsetY - 20) {
         bullets.splice(i, 1);
         continue;
       }
     }
 
-    // Update trail particles
+    // Update trail
     for (let j = b.trail.length - 1; j >= 0; j--) {
       b.trail[j].life -= dt;
       if (b.trail[j].life <= 0) b.trail.splice(j, 1);
@@ -526,15 +738,12 @@ function applyScreenShake() {
 // DRAWING
 // =============================================
 function drawBackground() {
-  // Black background (letterbox)
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function drawFace() {
   if (!faceImgLoaded) return;
-  // "Contain" logic: the image is scaled to fit entirely within the game area
-  // (gameAreaW/H already computed from Math.min scale), drawn at offsetX/Y
   ctx.drawImage(faceImg, offsetX, offsetY, gameAreaW, gameAreaH);
 }
 
@@ -543,7 +752,6 @@ function drawRedTint() {
     ctx.fillStyle = "rgba(255, 0, 0, " + redOverlayOpacity + ")";
     ctx.fillRect(offsetX, offsetY, gameAreaW, gameAreaH);
   }
-  // No decay — red tint accumulates permanently during the round
 }
 
 function drawDebugTargets() {
@@ -555,10 +763,8 @@ function drawDebugTargets() {
     const t = scaledTargets[i];
     const orig = IMG_CONFIG.targets[i];
     ctx.strokeRect(t.x, t.y, t.w, t.h);
-    // Fill with semi-transparent green
     ctx.fillStyle = 'rgba(0, 255, 0, 0.12)';
     ctx.fillRect(t.x, t.y, t.w, t.h);
-    // Label with original pixel coords
     ctx.fillStyle = '#00ff00';
     ctx.font = `bold ${Math.max(10, 12 * scale)}px monospace`;
     ctx.textAlign = 'left';
@@ -568,7 +774,6 @@ function drawDebugTargets() {
   }
   ctx.setLineDash([]);
 
-  // Draw ship movement boundaries
   const shipLeftX = offsetX + SHIP_BOUND_LEFT * scale;
   const shipRightX = offsetX + SHIP_BOUND_RIGHT * scale;
   ctx.strokeStyle = 'rgba(0, 150, 255, 0.5)';
@@ -588,7 +793,6 @@ function drawDebugTargets() {
   ctx.fillText(`X=${SHIP_BOUND_LEFT}`, shipLeftX, offsetY + gameAreaH - 122 * scale);
   ctx.fillText(`X=${SHIP_BOUND_RIGHT}`, shipRightX, offsetY + gameAreaH - 122 * scale);
 
-  // Show mouse/touch coordinate helper
   if (debugMousePos.active) {
     const imgX = Math.round((debugMousePos.x - offsetX) / scale);
     const imgY = Math.round((debugMousePos.y - offsetY) / scale);
@@ -596,7 +800,6 @@ function drawDebugTargets() {
     const px = debugMousePos.x;
     const py = debugMousePos.y;
 
-    // Crosshair at cursor
     ctx.strokeStyle = 'rgba(255, 255, 0, 0.6)';
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 4]);
@@ -606,7 +809,6 @@ function drawDebugTargets() {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Coord label
     ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
     const labelW = 220 * scale;
     const labelH = 24 * scale;
@@ -628,13 +830,14 @@ function drawHUD() {
   const hudY = offsetY + 20 * scale;
   const hudPad = 16 * scale;
   const fontSize = Math.max(16, 22 * scale);
+  const fontFamily = "'Vazirmatn', 'Segoe UI', sans-serif";
 
   // Timer
   ctx.fillStyle = 'rgba(0,0,0,0.5)';
   roundRect(ctx, offsetX + hudPad, hudY, 120 * scale, 44 * scale, 12 * scale);
   ctx.fill();
   ctx.fillStyle = timeLeft <= 5 ? '#ff5555' : '#fff';
-  ctx.font = `bold ${fontSize}px 'Segoe UI', sans-serif`;
+  ctx.font = `bold ${fontSize}px ${fontFamily}`;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText(`⏱ ${Math.ceil(timeLeft)}s`, offsetX + hudPad + 12 * scale, hudY + 22 * scale);
@@ -666,7 +869,7 @@ function drawHUD() {
     ctx.fillRect(barX, barY, barW * speedPct / 100, barH);
 
     ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.font = `${10 * scale}px sans-serif`;
+    ctx.font = `${10 * scale}px ${fontFamily}`;
     ctx.textAlign = 'center';
     ctx.fillText('SPEED', offsetX + gameAreaW / 2, hudY + 24 * scale);
   }
@@ -689,7 +892,6 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-// Vignette on game area
 function drawVignette() {
   const cx = offsetX + gameAreaW / 2;
   const cy = offsetY + gameAreaH / 2;
@@ -701,7 +903,6 @@ function drawVignette() {
   ctx.fillRect(offsetX, offsetY, gameAreaW, gameAreaH);
 }
 
-// Crosshair indicators on targets
 function drawTargetIndicators() {
   if (gameState !== 'playing') return;
   const t = Date.now() / 1000;
@@ -715,7 +916,6 @@ function drawTargetIndicators() {
     ctx.beginPath();
     ctx.arc(cx, cy, sz * 0.6, 0, Math.PI * 2);
     ctx.stroke();
-    // Crosshair lines
     const len = sz * 0.3;
     ctx.beginPath();
     ctx.moveTo(cx - sz * 0.6 - len, cy); ctx.lineTo(cx - sz * 0.6 + 4, cy);
@@ -731,7 +931,7 @@ function drawTargetIndicators() {
 // =============================================
 function gameLoop(timestamp) {
   if (!lastTime) lastTime = timestamp;
-  const dt = Math.min((timestamp - lastTime) / 1000, 0.05); // cap delta
+  const dt = Math.min((timestamp - lastTime) / 1000, 0.05);
   lastTime = timestamp;
 
   if (gameState === 'playing') {
@@ -741,6 +941,8 @@ function gameLoop(timestamp) {
     updatePlayer(dt, elapsed);
     updateBullets(dt);
     updateStarfield(dt);
+    updateFloatingTexts(dt);
+    updateMuzzleFlash(dt);
 
     if (timeLeft <= 0) {
       endGame();
@@ -752,7 +954,7 @@ function gameLoop(timestamp) {
   drawBackground();
   applyScreenShake();
 
-  // Clip to game area for all game rendering
+  // Clip to game area
   ctx.save();
   ctx.beginPath();
   ctx.rect(offsetX, offsetY, gameAreaW, gameAreaH);
@@ -767,7 +969,9 @@ function gameLoop(timestamp) {
 
   if (gameState === 'playing') {
     drawBullets();
+    drawMuzzleFlash();
     drawPlayer();
+    drawFloatingTexts();
     drawHUD();
   }
 
@@ -786,12 +990,16 @@ function gameLoop(timestamp) {
 // GAME STATE
 // =============================================
 function startGame() {
+  initAudioContext();
+
   score = 0;
   timeLeft = GAME_DURATION;
   gameStartTime = Date.now();
   bullets = [];
+  floatingTexts = [];
   redOverlayOpacity = 0;
   screenShake.intensity = 0;
+  muzzleFlash.active = false;
   player.dir = 1;
   player.x = offsetX + gameAreaW / 2;
 
@@ -806,16 +1014,62 @@ function endGame() {
   gameState = 'ended';
   finalScoreEl.textContent = score;
 
-  if (score < 20) endMessageEl.textContent = "ریدی که. لول 1: کصلیس نگین";
-  else if (score < 40) endMessageEl.textContent = "بد نبود. لول 2: خایمال پریسا";
-   else if (score < 60) endMessageEl.textContent = "اوکیه. پالیس ایلدا لول 3";
-  else if (score < 90) endMessageEl.textContent = "خوبه آفرین. لول 4: بابایی کیمیا";
-  else if (score < 110) endMessageEl.textContent = "گاییدی ایلیارو. لول 5: پریا پاپیلونی 🏆";
-   else if (score < 130) endMessageEl.textContent = "کیرتم دست ایلیا ندادی. درست مثل ریحانه: لول 6 🏆";
-   else if (score < 150) endMessageEl.textContent = "لول (7): لجندری. بکن حرفه ای کیمیا 💀🚀";
-   else if (score < 170) endMessageEl.textContent = " دست که نیست ویبراتور زن ایلیاس: لول 8";
-    else if (score < 240) endMessageEl.textContent = " لول 9: آذربایجان شرفدی، پهلوی بیشرف دی";
-  else endMessageEl.textContent = "لول سوپر رویال لجندری فوق تخصصی ویژه تشریفاتی (10): بکن مسعود";
+  // Dynamic Persian rank system
+  let rank, emoji, color;
+  if (score < 20) {
+    rank = 'رتبه 1: کصلیس نگین 👵';
+    emoji = '😅';
+    color = '#aaa';
+  } else if (score < 40) {
+    rank = 'رتبه 2: خایمال پریسا 🎯';
+    emoji = '👍';
+    color = '#6b8aff';
+  } else if (score < 60) {
+    rank = 'رتبه 3: پالیس ایلدا 🔥';
+    emoji = '🏆';
+    color = '#ffaa00';
+  } else if (score < 90) {
+    rank = 'رتبه 4: بابایی کیمیا 🔥';
+    emoji = '🏆';
+    color = '#ffaa00';
+    } else if (score < 110) {
+    rank = 'رتبه 5: بکن پریا پاپیلونی 🔥';
+    emoji = '🏆';
+    color = '#ffaa00';
+    } else if (score < 130) {
+    rank = 'رتبه 6: کیرخور ریحانه 🔥';
+    emoji = '🏆';
+    color = '#ffaa00';
+    } else if (score < 150) {
+    rank = 'رتبه 7: بکن حرفه ای کیمیا 🔥';
+    emoji = '🏆';
+    color = '#ffaa00';
+    } else if (score < 180) {
+    rank = 'رتبه 8: ویبراتور زن ایلیا 🔥';
+    emoji = '🏆';
+    color = '#ffaa00';
+    } else if (score < 220) {
+    rank = 'رتبه 9: خایمال پهلوی 🔥';
+    emoji = '🏆';
+    color = '#ffaa00';
+  } else {
+    rank = 'رتبه 10: بکن مسعود 👃💀';
+    emoji = '💀';
+    color = '#ff4444';
+  }
+
+  rankDisplayEl.textContent = rank;
+  rankDisplayEl.style.color = color;
+  rankDisplayEl.style.borderColor = color + '44';
+  rankDisplayEl.style.background = color + '12';
+  endEmojiEl.textContent = emoji;
+
+  // Persian messages
+  if (score <50) endMessageEl.textContent = "شاید دفعه بعد دماغو ببینی! 😂";
+  else if (score < 100) endMessageEl.textContent = "بد نبود! تمرین کن! 💪";
+  else if (score < 150) endMessageEl.textContent = "نشونه‌گیریت خوبه! 🎯";
+  else if (score < 200) endMessageEl.textContent = "وای! تک‌تیرانداز واقعی! 🔥";
+  else endMessageEl.textContent = "افسانه‌ای! نابودگر مطلق دماغ! 💀🚀";
 
   setTimeout(() => { endScreen.classList.add('active'); }, 300);
   try { bgMusic.pause(); } catch(e) {}
@@ -829,7 +1083,6 @@ function handleShoot(e) {
   if (gameState === 'playing') shoot();
 }
 
-// Keyboard
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space') {
     e.preventDefault();
@@ -837,24 +1090,21 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-// Mouse click
 canvas.addEventListener('mousedown', (e) => {
   handleShoot(e);
 });
 canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-// Touch
 canvas.addEventListener('touchstart', (e) => {
   handleShoot(e);
 }, { passive: false });
 
-// Buttons
 startBtn.addEventListener('click', startGame);
 startBtn.addEventListener('touchend', (e) => { e.preventDefault(); startGame(); });
 restartBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('touchend', (e) => { e.preventDefault(); startGame(); });
 
-// Debug: track mouse position for coordinate helper
+// Debug mouse tracking
 if (DEBUG_MODE) {
   canvas.addEventListener('mousemove', (e) => {
     const rect = canvas.getBoundingClientRect();
@@ -867,7 +1117,6 @@ if (DEBUG_MODE) {
   });
 }
 
-// Resize
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', () => setTimeout(resize, 100));
 
